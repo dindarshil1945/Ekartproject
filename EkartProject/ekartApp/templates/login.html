@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Login</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #2563eb, #6d28d9);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Poppins", sans-serif;
+      position: relative;
+      overflow: hidden;
+      padding: 1rem;
+    }
+
+    /* Glow effect background */
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      filter: blur(120px);
+      animation: floatGlow 6s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    body::before {
+      background: rgba(255, 255, 255, 0.15);
+      top: 10%;
+      left: 15%;
+    }
+
+    body::after {
+      background: rgba(255, 255, 255, 0.1);
+      bottom: 10%;
+      right: 15%;
+      animation-direction: alternate-reverse;
+    }
+
+    @keyframes floatGlow {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(-30px);
+      }
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      padding: 2rem 2.5rem;
+      color: #fff;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-title {
+      text-align: center;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-title i {
+      color: #facc15;
+    }
+
+    /* Input field styling */
+    .login-card input {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .login-card input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
+      transform: scale(1.02);
+    }
+
+    /* Button styling */
+    .btn-login {
+      background: linear-gradient(90deg, #2563eb, #6d28d9);
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      padding: 10px;
+      font-weight: 500;
+      transition: 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.5);
+    }
+
+    .form-text {
+      color: #e5e7eb;
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #fbbf24;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Message alerts */
+    .alert {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-wrapper">
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-3">
+      {% for i in messages %}
+      {% if i.tags == "success" %}
+      <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i> {{ i }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% elif i.tags == "error" %}
+      <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <i class="fas fa-times-circle me-2"></i> {{ i }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% elif i.tags == "warning" %}
+      <div class="alert alert-warning alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> {{ i }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% else %}
+      <div class="alert alert-info alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <i class="fas fa-info-circle me-2"></i> {{ i }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Login Card -->
+    <div class="login-card">
+      <h3 class="login-title">
+        <i class="fas fa-lock me-2"></i> User Login
+      </h3>
+
+      <form action="" method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-login w-100">
+          <i class="fas fa-sign-in-alt me-2"></i> Login
+        </button>
+      </form>
+
+      <p class="form-text mt-3">
+        Don’t have an account?
+        <a href="{% url 'register' %}">Register here</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

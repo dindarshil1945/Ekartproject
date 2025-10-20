@@ -1,14 +1,15 @@
 from django.shortcuts import render,redirect
 from django.views import View
 from django.views.generic import TemplateView
-from ekartApp.models import Product,Cart
-from ekartApp.forms import UserRegisterForm,UserLoginForm,CartForm
+from ekartApp.models import Product,Cart,Order
+from ekartApp.forms import UserRegisterForm,UserLoginForm,CartForm,OrderForm
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.utils.decorators import method_decorator
 from ekartApp.authentication import login_required
+from django.core.mail import send_mail,settings
 
 # Create your views here.
 
@@ -58,7 +59,9 @@ class UserLoginView(View):
 class AddToCartView(View):
     def get(self,request,*args, **kwargs):
         form=CartForm()
-        return render(request,'add_to_cart.html',{"form":form})
+        product_id=kwargs.get("id")
+        product=Product.objects.get(id=product_id)
+        return render(request,'add_to_cart.html',{"form":form,"product":product})
     def post(self,request,*args, **kwargs):
         product=Product.objects.get(id=kwargs.get("id"))
         user=request.user
@@ -80,6 +83,49 @@ class CartListView(View):
         else:
             cart_list=Cart.objects.filter(user=request.user,status='in-cart')
             return render(request,'cart_view.html',{"cartlist":cart_list})
+        
+class PlaceOrderView(View):
+    def get(self,request,*args, **kwargs):
+        form=OrderForm()
+        return render(request,"order.html",{"form":form})
+    
+    def post(self,request,*args, **kwargs):
+        user=request.user
+        email=user.email
+        cart_instance=Cart.objects.get(id=kwargs.get('id'))
+        address=request.POST.get("address")
+        
+        Order.objects.create(address=address,user=user,cart=cart_instance)
+        cart_instance.status='order-placed'
+        cart_instance.save()
+        
+        from_addr=settings.EMAIL_HOST_USER
+        subject = "Order Confirmation - Ekart"
+        message = f"""
+        Dear {user.first_name or user.username},
+
+        Thank you for shopping with Ekart! 🎉  
+        We’re excited to let you know that your order has been successfully placed.
+
+        📦 Order Details:
+        • Product: {cart_instance.product.product_name}
+        • Quantity: {cart_instance.quantity}
+        • Delivery Address: {address}
+
+        Our team is processing your order, and we’ll notify you as soon as it ships.  
+        If you have any questions, feel free to contact our support team at support@ekart.com.
+
+        Thank you for choosing Ekart.
+        We look forward to serving you again soon!
+
+        Warm regards,  
+        Ekart Customer Support Team  
+        www.ekart.com
+        """
+
+        send_mail(subject, message,from_addr, [email])
+        messages.success(request, "Order placed successfully. Confirmation email sent.")
+        return redirect("cart_view")
 
 class LogoutView(View):
     def get(self,request):

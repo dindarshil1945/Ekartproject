@@ -51,10 +51,10 @@
                   ₹{{ cart.product.price|floatformat:2|add:cart.quantity }}
                 </h6>
                 <a
-                  href="#"
+                  href="{% url 'cart_order_view' cart.id %}"
                   class="btn btn-outline-danger btn-sm"
                 >
-                  <i class="fas fa-trash"></i> Remove
+                  <i class="fas fa-trash"></i> Order
                 </a>
               </div>
             </div>

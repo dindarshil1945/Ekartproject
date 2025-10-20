@@ -144,5 +144,8 @@ class OrderConfirmationView(View):
 
 class OrdersPageView(View):
     def get(self, request):
-        order = Order.objects.filter(user=request.user, status="order-placed").order_by('-id')
-        return render(request, "orders.html", {"orders": order})
+        if not request.user.is_authenticated:
+            return redirect('login')
+        else:
+            order = Order.objects.filter(user=request.user, status="order-placed").order_by('-id')
+            return render(request, "orders.html", {"orders": order})

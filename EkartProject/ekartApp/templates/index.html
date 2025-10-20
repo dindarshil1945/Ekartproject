@@ -67,11 +67,21 @@
                     </a>
                     {% endif %}
 
+                    <!-- Orders Button -->
+                    <a href="{% url 'orders_page' %}" class="btn btn-outline-warning">
+                        <i class="bi bi-bag-fill me-1"></i> Orders
+                        <span class="badge bg-warning text-dark rounded-pill">{{ order_count }}</span>
+
+                    </a>
+
                     <a href="{% url 'cart_view' %}" class="btn btn-outline-dark position-relative">
                         <i class="bi-cart-fill me-1"></i> Cart
                         <span class="badge bg-dark text-white ms-1 rounded-pill">{{ count }}</span>
                     </a>
+
+                    
                 </div>
+
             </div>
 
         </div>

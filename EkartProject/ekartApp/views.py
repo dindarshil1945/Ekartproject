@@ -140,7 +140,9 @@ class OrderConfirmationView(View):
         # Estimate delivery date (3–5 days)
         expected_delivery = timezone.now().date() + timedelta(days=4)
 
-        return render(request, "confirmation.html", {
-            "order": order,
-            "expected_delivery": expected_delivery
-        })
+        return render(request, "confirmation.html", {"order": order,"expected_delivery": expected_delivery})
+
+class OrdersPageView(View):
+    def get(self, request):
+        order = Order.objects.filter(user=request.user, status="order-placed").order_by('-id')
+        return render(request, "orders.html", {"orders": order})

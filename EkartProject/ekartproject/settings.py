@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ekartApp.context_processors.cart_count',
+                'ekartApp.context_processors.order_count',
             ],
         },
     },

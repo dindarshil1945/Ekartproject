@@ -10,6 +10,8 @@ from django.contrib import messages
 from django.utils.decorators import method_decorator
 from ekartApp.authentication import login_required
 from django.core.mail import send_mail,settings
+from django.utils import timezone
+from datetime import timedelta
 
 # Create your views here.
 
@@ -87,7 +89,9 @@ class CartListView(View):
 class PlaceOrderView(View):
     def get(self,request,*args, **kwargs):
         form=OrderForm()
-        return render(request,"order.html",{"form":form})
+        cart_id = kwargs.get('id')  # get cart ID from URL
+        cart = Cart.objects.get(id=cart_id, user=request.user)
+        return render(request,"order.html",{"form":form,"cart":cart})
     
     def post(self,request,*args, **kwargs):
         user=request.user
@@ -95,37 +99,32 @@ class PlaceOrderView(View):
         cart_instance=Cart.objects.get(id=kwargs.get('id'))
         address=request.POST.get("address")
         
-        Order.objects.create(address=address,user=user,cart=cart_instance)
+        # Create the order
+        order = Order.objects.create(address=address, user=user, cart=cart_instance)
+        
+        # Update cart status
         cart_instance.status='order-placed'
         cart_instance.save()
         
+        # Send email
         from_addr=settings.EMAIL_HOST_USER
         subject = "Order Confirmation - Ekart"
         message = f"""
         Dear {user.first_name or user.username},
 
         Thank you for shopping with Ekart! 🎉  
-        We’re excited to let you know that your order has been successfully placed.
-
-        📦 Order Details:
-        • Product: {cart_instance.product.product_name}
-        • Quantity: {cart_instance.quantity}
-        • Delivery Address: {address}
-
-        Our team is processing your order, and we’ll notify you as soon as it ships.  
-        If you have any questions, feel free to contact our support team at support@ekart.com.
-
-        Thank you for choosing Ekart.
-        We look forward to serving you again soon!
-
-        Warm regards,  
-        Ekart Customer Support Team  
-        www.ekart.com
+        Order Details:
+        Product: {cart_instance.product.product_name}
+        Quantity: {cart_instance.quantity}
+        Delivery Address: {address}
         """
-
-        send_mail(subject, message,from_addr, [email])
+        send_mail(subject, message, from_addr, [email])
+        
         messages.success(request, "Order placed successfully. Confirmation email sent.")
-        return redirect("cart_view")
+        
+        # Redirect using the Order ID
+        return redirect("confirmation", id=order.id)
+
 
 class LogoutView(View):
     def get(self,request):
@@ -133,3 +132,15 @@ class LogoutView(View):
         messages.success(request,"Logged Out Succesfully")
         return redirect("login")
     
+class OrderConfirmationView(View):
+    def get(self, request, *args, **kwargs):
+        order_id = kwargs.get('id')
+        order = Order.objects.get(id=order_id, user=request.user)
+
+        # Estimate delivery date (3–5 days)
+        expected_delivery = timezone.now().date() + timedelta(days=4)
+
+        return render(request, "confirmation.html", {
+            "order": order,
+            "expected_delivery": expected_delivery
+        })

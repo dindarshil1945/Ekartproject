@@ -1,0 +1,64 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container px-4 px-lg-5 mt-5">
+
+    <!-- Success Message -->
+    <div class="text-center mb-5">
+      <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+      <h2 class="fw-bold text-success">🎉 Order Placed Successfully!</h2>
+      <p class="text-muted">Thank you for shopping with <strong>Ekart</strong>. Your order has been confirmed.</p>
+    </div>
+
+    <!-- Order Details Card -->
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow border-0 rounded-3 mb-4">
+          <div class="row g-0">
+            
+            <!-- Product Image -->
+            <div class="col-md-4 d-flex align-items-center justify-content-center p-3 bg-white">
+              <img 
+                src="{{ order.cart.product.image.url }}" 
+                alt="{{ order.cart.product.product_name }}" 
+                class="img-fluid rounded" 
+                style="max-height: 200px; object-fit: contain;"
+              >
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-md-8 p-4">
+              <h4 class="fw-bold">{{ order.cart.product.product_name }}</h4>
+              <h5 class="text-danger fw-bold">₹{{ order.cart.product.price }}</h5>
+              <p class="text-muted mb-1">Quantity: {{ order.cart.quantity }}</p>
+
+              <hr>
+
+              <h6 class="fw-semibold mb-2">Delivery Address</h6>
+              <p class="text-muted">{{ order.address }}</p>
+
+              <h6 class="fw-semibold mt-3 mb-2">Expected Delivery</h6>
+              <p class="text-success fw-bold">
+                <i class="fas fa-truck me-2"></i> {{ expected_delivery|date:"F j, Y" }}
+              </p>
+
+              <div class="mt-4">
+                <a href="{% url 'home_view' %}" class="btn btn-primary">
+                  <i class="fas fa-home me-1"></i> Continue Shopping
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Optional Footer Info -->
+        <div class="text-center text-muted small">
+          Need help? Contact <a href="mailto:support@ekart.com" class="text-decoration-none">support@ekart.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
